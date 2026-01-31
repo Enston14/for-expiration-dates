@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Очистка базы данных - PetFeed Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #fffbeb 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #1e40af;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+        
+        .icon {
+            font-size: 4rem;
+            color: #ef4444;
+            margin-bottom: 20px;
+        }
+        
+        p {
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .warning-box {
+            background: #fef2f2;
+            border: 2px solid #fecaca;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .warning-box h3 {
+            color: #991b1b;
+            margin-bottom: 10px;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+        
+        .btn-secondary:hover {
+            background: #cbd5e1;
+            transform: translateY(-2px);
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .stat-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #3b82f6;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            <i class="fas fa-database"></i>
+        </div>
+        
+        <h1>Очистка базы данных</h1>
+        
+        <p>Эта страница позволяет полностью очистить базу данных системы учета кормов от всех старых данных.</p>
+        
+        <div class="warning-box">
+            <h3><i class="fas fa-exclamation-triangle"></i> ВНИМАНИЕ!</h3>
+            <p>Это действие удалит <strong>ВСЕ</strong> товары из базы данных без возможности восстановления.</p>
+            <p>Убедитесь, что вы сохранили необходимые данные перед продолжением.</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">Товаров в базе:</div>
+                <div class="stat-value" id="productsCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Размер базы:</div>
+                <div class="stat-value" id="dbSize">0 КБ</div>
+            </div>
+        </div>
+        
+        <div class="buttons">
+            <button class="btn btn-danger" onclick="clearDatabase()">
+                <i class="fas fa-trash-alt"></i> Полностью очистить БД
+            </button>
+            <button class="btn btn-secondary" onclick="window.location.href = 'index.html'">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+        </div>
+        
+        <p style="margin-top: 30px; font-size: 0.9rem; color: #94a3b8;">
+            После очистки вы будете перенаправлены на главную страницу
+        </p>
+    </div>
+
+    <script>
+        // Загружаем текущие данные
+        let products = JSON.parse(localStorage.getItem('warehouse_products')) || [];
+        
+        // Обновляем статистику
+        document.getElementById('productsCount').textContent = products.length;
+        
+        const dataString = JSON.stringify(products);
+        const sizeInBytes = new Blob([dataString]).size;
+        const sizeInKB = (sizeInBytes / 1024).toFixed(2);
+        document.getElementById('dbSize').textContent = `${sizeInKB} КБ`;
+        
+        // Функция очистки базы данных
+        function clearDatabase() {
+            if (confirm('ВЫ УВЕРЕНЫ?\n\nЭто действие удалит ВСЕ данные безвозвратно.\n\nПоследнее предупреждение!')) {
+                // Очищаем localStorage
+                localStorage.removeItem('warehouse_products');
+                localStorage.removeItem('warehouse_session');
+                
+                // Показываем сообщение об успехе
+                alert('База данных успешно очищена!');
+                
+                // Перенаправляем на главную страницу
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

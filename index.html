@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>База сроков PetShop</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐕</text></svg>">
+</head>
+<body>
+    <!-- Экран входа/регистрации -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-container">
+            <div class="login-header">
+                <div class="login-logo">
+                    <div class="logo-dog">
+                        <i class="fas fa-paw"></i>
+                    </div>
+                    <h1>База сроков PetShop</h1>
+                </div>
+                <p class="login-subtitle">Учет сроков сдачи кормов на склад</p>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" onclick="window.switchTab('login')">
+                    <i class="fas fa-sign-in-alt"></i> Вход
+                </div>
+                <div class="tab" onclick="window.switchTab('register')">
+                    <i class="fas fa-user-plus"></i> Регистрация
+                </div>
+            </div>
+            
+            <!-- Форма входа -->
+            <div id="loginTab" class="tab-content active">
+                <div class="form-group">
+                    <label for="loginUsername">Логин</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="loginUsername" class="form-control" placeholder="Введите ваш логин">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Пароль</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" class="form-control" placeholder="Введите ваш пароль">
+                    </div>
+                </div>
+                
+                <button class="btn btn-block btn-login" onclick="window.login()">
+                    <i class="fas fa-sign-in-alt"></i> Войти в систему
+                </button>
+                
+                <div class="alert alert-warning" id="loginAlert" style="display: none; margin-top: 20px;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="loginAlertText"></span>
+                </div>
+            </div>
+            
+            <!-- Форма регистрации -->
+            <div id="registerTab" class="tab-content">
+                <div class="form-group">
+                    <label for="registerUsername">Логин</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="registerUsername" class="form-control" placeholder="Придумайте логин">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerPassword">Пароль</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="registerPassword" class="form-control" placeholder="Придумайте пароль">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerName">ФИО сотрудника</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-id-card"></i>
+                        <input type="text" id="registerName" class="form-control" placeholder="Введите ваше ФИО">
+                    </div>
+                </div>
+                
+                <button class="btn btn-block btn-register" onclick="window.register()">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+                
+                <div class="alert" id="registerAlert" style="display: none; margin-top: 20px;">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="registerAlertText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Основной интерфейс -->
+    <div id="mainApp" style="display: none;">
+        <header>
+            <div class="container">
+                <div class="header-content">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <div class="dog-icon">
+                                <i class="fas fa-dog"></i>
+                            </div>
+                        </div>
+                        <div class="logo-text">
+                            <h1>База сроков PetShop</h1>
+                            <p class="logo-subtitle">Учет сдачи кормов на склад</p>
+                        </div>
+                    </div>
+                    
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="user-details">
+                            <span id="userName">Администратор</span>
+                            <span id="userRole" class="user-role">Администратор</span>
+                        </div>
+                        <button class="logout-btn" onclick="window.logout()" title="Выйти из системы">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="container">
+            <!-- Памятка по срокам -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </div>
+                    <h2>Памятка по срокам сдачи кормов</h2>
+                </div>
+                <div class="reminder-grid">
+                    <div class="reminder-item category-regular">
+                        <div class="reminder-icon category-regular">
+                            <i class="fas fa-bone"></i>
+                        </div>
+                        <div class="reminder-content">
+                            <h3>Корма+Ветка</h3>
+                            <p>Сдавать на склад за <strong>2 месяца и 2 недели (75 дней)</strong> до окончания срока годности</p>
+                            <div class="reminder-example">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Пример: если срок годности до 31.12.2024 → сдать до 15.10.2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="reminder-item category-royal">
+                        <div class="reminder-icon category-royal">
+                            <i class="fas fa-crown"></i>
+                        </div>
+                        <div class="reminder-content">
+                            <h3>AVZ, JARVI, Royal Canin, Eukanuba</h3>
+                            <p>Сдавать на склад за <strong>4 месяца и 2 недели (135 дней)</strong> до окончания срока годности</p>
+                            <div class="reminder-example">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Пример: если срок годности до 31.12.2024 → сдать до 15.08.2024</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="reminder-item category-premium">
+                        <div class="reminder-icon category-premium">
+                            <i class="fas fa-medal"></i>
+                        </div>
+                        <div class="reminder-content">
+                            <h3>Award, Best Diner, Edel Cat/Dog</h3>
+                            <p>Сдавать на склад за <strong>5 месяцев и 2 недели (165 дней)</strong> до окончания срока годности</p>
+                            <div class="reminder-example">
+                                <i class="fas fa-calendar-alt"></i>
+                                <span>Пример: если срок годности до 31.12.2024 → сдать до 15.07.2024</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Калькуляторы -->
+            <div class="calculators-grid">
+                <!-- Калькулятор срока годности -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-calculator"></i>
+                        </div>
+                        <h2>Калькулятор срока годности</h2>
+                    </div>
+                    <p class="card-subtitle">Рассчитайте дату окончания срока годности корма</p>
+                    
+                    <div class="form-group">
+                        <label for="productionDate">
+                            <i class="fas fa-calendar-day"></i> Дата изготовления
+                        </label>
+                        <input type="date" id="productionDate" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="shelfLife">
+                            <i class="fas fa-clock"></i> Срок годности (месяцев)
+                        </label>
+                        <input type="number" id="shelfLife" class="form-control" value="18" min="1" max="36">
+                    </div>
+                    
+                    <button class="btn btn-block btn-calculate" onclick="calculateExpiryDate()">
+                        <i class="fas fa-calculator"></i> Рассчитать срок годности
+                    </button>
+                    
+                    <div id="expiryResult" class="calculator-result" style="display: none; margin-top: 20px;">
+                        <div class="result-header">
+                            <div class="result-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <h3>Результат расчета</h3>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-item">
+                                <i class="fas fa-calendar-alt"></i>
+                                <div>
+                                    <p class="result-label">Срок годности закончится:</p>
+                                    <p class="result-value" id="expiryDateResult"></p>
+                                </div>
+                            </div>
+                            <button class="btn btn-success" onclick="addToTrackingFromExpiry()">
+                                <i class="fas fa-plus-circle"></i> Добавить в отслеживание
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Калькулятор даты сдачи -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <h2>Калькулятор даты сдачи</h2>
+                    </div>
+                    <p class="card-subtitle">Рассчитайте дату сдачи корма на склад</p>
+                    
+                    <div class="form-group">
+                        <label for="expiryDateInput">
+                            <i class="fas fa-calendar-times"></i> Дата окончания срока годности
+                        </label>
+                        <input type="date" id="expiryDateInput" class="form-control">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="feedType">
+                            <i class="fas fa-tags"></i> Категория корма
+                        </label>
+                        <select id="feedType" class="form-control">
+                            <option value="regular">Корма+Ветка (-75 дней)</option>
+                            <option value="royal">AVZ, JARVI, Royal Canin, Eukanuba (-135 дней)</option>
+                            <option value="premium">Award, Best Diner, Edel Cat/Dog (-165 дней)</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn btn-block btn-calculate" onclick="calculateDeliveryDate()">
+                        <i class="fas fa-calculator"></i> Рассчитать дату сдачи
+                    </button>
+                    
+                    <div id="deliveryResult" class="calculator-result" style="display: none; margin-top: 20px;">
+                        <div class="result-header">
+                            <div class="result-icon">
+                                <i class="fas fa-calendar-alt"></i>
+                            </div>
+                            <h3>Дата сдачи на склад</h3>
+                        </div>
+                        <div class="result-content">
+                            <div class="result-item">
+                                <i class="fas fa-calendar-day"></i>
+                                <div>
+                                    <p class="result-label">Необходимо сдать до:</p>
+                                    <p class="result-value" id="deliveryDateResult"></p>
+                                </div>
+                            </div>
+                            <div id="daysToDelivery" style="margin: 15px 0;"></div>
+                            <div id="suggestionText" style="margin-top: 15px;"></div>
+                            <button class="btn btn-success" onclick="addToTrackingFromDelivery()" style="display: none; margin-top: 10px;">
+                                <i class="fas fa-plus-circle"></i> Добавить в отслеживание
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Статистика -->
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-value" id="totalProducts">0</div>
+                    <div class="stat-label">Всего товаров</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-week"></i>
+                    </div>
+                    <div class="stat-value" id="weekProducts">0</div>
+                    <div class="stat-label">На этой неделе</div>
+                </div>
+                <div class="stat-item category-regular">
+                    <div class="stat-icon">
+                        <i class="fas fa-bone"></i>
+                    </div>
+                    <div class="stat-value" id="regularProducts">0</div>
+                    <div class="stat-label">Корма+Ветка</div>
+                </div>
+                <div class="stat-item category-royal">
+                    <div class="stat-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <div class="stat-value" id="royalProducts">0</div>
+                    <div class="stat-label">Премиум (135 дн.)</div>
+                </div>
+                <div class="stat-item category-premium">
+                    <div class="stat-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <div class="stat-value" id="premiumProducts">0</div>
+                    <div class="stat-label">Супер-премиум (165 дн.)</div>
+                </div>
+                <div class="stat-item stat-danger">
+                    <div class="stat-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-value" id="expiredProducts">0</div>
+                    <div class="stat-label">Просрочено</div>
+                </div>
+            </div>
+            
+            <div class="main-content">
+                <!-- Левая колонка: добавление товара -->
+                <div class="content-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <h2>Добавить новый товар</h2>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="article">
+                                <i class="fas fa-barcode"></i> Артикул товара *
+                            </label>
+                            <input type="text" id="article" class="form-control" placeholder="Например: RC-2024-001">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="productName">
+                                <i class="fas fa-tag"></i> Название товара *
+                            </label>
+                            <input type="text" id="productName" class="form-control" placeholder="Например: Корм Royal Canin для щенков">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="productType">
+                                <i class="fas fa-tags"></i> Категория товара
+                            </label>
+                            <select id="productType" class="form-control">
+                                <option value="regular">Корма+Ветка (75 дней)</option>
+                                <option value="royal">AVZ, JARVI, Royal Canin, Eukanuba (135 дней)</option>
+                                <option value="premium">Award, Best Diner, Edel Cat/Dog (165 дней)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="expiryDate">
+                                <i class="fas fa-calendar-alt"></i> Дата сдачи на склад *
+                            </label>
+                            <input type="date" id="expiryDate" class="form-control">
+                        </div>
+                        
+                        <button class="btn btn-block btn-add" onclick="window.addProduct()">
+                            <i class="fas fa-save"></i> Добавить товар
+                        </button>
+                        
+                        <div id="formAlert" class="alert" style="display: none; margin-top: 20px;">
+                            <i class="fas fa-info-circle"></i>
+                            <span id="formAlertText"></span>
+                        </div>
+                    </div>
+                    
+                    <!-- Список всех товаров -->
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <h2>Все товары</h2>
+                        </div>
+                        
+                        <div class="filters">
+                            <button class="filter-btn active" onclick="window.filterProducts('all')">
+                                <i class="fas fa-boxes"></i> Все
+                            </button>
+                            <button class="filter-btn" onclick="window.filterProducts('week')">
+                                <i class="fas fa-calendar-week"></i> На этой неделе
+                            </button>
+                            <button class="filter-btn category-regular" onclick="window.filterProducts('regular')">
+                                <i class="fas fa-bone"></i> Корма+Ветка
+                            </button>
+                            <button class="filter-btn category-royal" onclick="window.filterProducts('royal')">
+                                <i class="fas fa-crown"></i> Премиум
+                            </button>
+                            <button class="filter-btn category-premium" onclick="window.filterProducts('premium')">
+                                <i class="fas fa-medal"></i> Супер-премиум
+                            </button>
+                            <button class="filter-btn" onclick="window.filterProducts('expired')">
+                                <i class="fas fa-exclamation-triangle"></i> Просроченные
+                            </button>
+                            <button class="filter-btn filter-my" onclick="window.filterProducts('my')">
+                                <i class="fas fa-user"></i> Мои товары
+                            </button>
+                        </div>
+                        
+                        <div id="allProductsList" class="products-list">
+                            <div class="empty-state">
+                                <i class="fas fa-box-open"></i>
+                                <p>Нет товаров для отображения</p>
+                                <small>Добавьте первый товар, используя форму выше</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Правая колонка: товары на этой неделе -->
+                <div class="content-column">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-calendar-week"></i>
+                            </div>
+                            <h2>Сдать на этой неделе</h2>
+                        </div>
+                        <p class="card-subtitle">Товары, которые необходимо сдать на склад в ближайшие 7 дней</p>
+                        
+                        <div id="weekProductsList" class="products-list">
+                            <div class="empty-state">
+                                <i class="fas fa-calendar-check"></i>
+                                <p>На этой неделе сдавать нечего</p>
+                                <small>Отличная работа!</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h2>Последние добавления</h2>
+                        </div>
+                        
+                        <div id="recentProductsList" class="products-list">
+                            <div class="empty-state">
+                                <i class="fas fa-history"></i>
+                                <p>Нет недавних добавлений</p>
+                                <small>Новые товары появятся здесь</small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Информация о пользователе -->
+                    <div class="card user-info-card">
+                        <div class="card-header">
+                            <div class="card-icon">
+                                <i class="fas fa-user-circle"></i>
+                            </div>
+                            <h2>Ваша информация</h2>
+                        </div>
+                        <div class="user-stats">
+                            <div class="user-stat">
+                                <div class="user-stat-icon">
+                                    <i class="fas fa-box"></i>
+                                </div>
+                                <div>
+                                    <p class="user-stat-value" id="userProductsCount">0</p>
+                                    <p class="user-stat-label">Ваших товаров</p>
+                                </div>
+                            </div>
+                            <div class="user-stat">
+                                <div class="user-stat-icon">
+                                    <i class="fas fa-calendar-day"></i>
+                                </div>
+                                <div>
+                                    <p class="user-stat-value" id="userWeekProducts">0</p>
+                                    <p class="user-stat-label">На этой неделе</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-clear" onclick="clearMyData()">
+                            <i class="fas fa-trash-alt"></i> Очистить мои товары
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Декоративные элементы -->
+        <div class="decoration">
+            <div class="decoration-dog">
+                <i class="fas fa-paw"></i>
+            </div>
+            <div class="decoration-bone">
+                <i class="fas fa-bone"></i>
+            </div>
+            <div class="decoration-cat">
+                <i class="fas fa-cat"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подключаем JavaScript файлы -->
+    <script src="supabase.js" type="module"></script>
+    <script src="data.js"></script>
+    <script src="utils.js"></script>
+    <script src="auth.js"></script>
+    <script src="calculators.js"></script>
+    <script src="products.js"></script>
+    
+    <script>
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверяем, есть ли активная сессия
+            const session = JSON.parse(localStorage.getItem('warehouse_session'));
+            if (session) {
+                window.currentUser = session;
+                if (typeof window.showMainApp === 'function') {
+                    window.showMainApp();
+                }
+            }
+            
+            // Устанавливаем минимальную дату (сегодня)
+            const today = new Date().toISOString().split('T')[0];
+            if (document.getElementById('expiryDate')) {
+                document.getElementById('expiryDate').min = today;
+            }
+            if (document.getElementById('productionDate')) {
+                document.getElementById('productionDate').max = today;
+            }
+            if (document.getElementById('expiryDateInput')) {
+                document.getElementById('expiryDateInput').min = today;
+            }
+            
+            // Устанавливаем значение по умолчанию (через неделю)
+            const nextWeek = new Date();
+            nextWeek.setDate(nextWeek.getDate() + 7);
+            if (document.getElementById('expiryDate')) {
+                document.getElementById('expiryDate').value = nextWeek.toISOString().split('T')[0];
+            }
+            
+            // Устанавливаем сегодняшнюю дату в калькуляторах
+            if (document.getElementById('productionDate')) {
+                document.getElementById('productionDate').value = today;
+            }
+            
+            const nextMonth = new Date();
+            nextMonth.setMonth(nextMonth.getMonth() + 12);
+            if (document.getElementById('expiryDateInput')) {
+                document.getElementById('expiryDateInput').value = nextMonth.toISOString().split('T')[0];
+            }
+            
+            // Добавляем эффект наведения на кнопки
+            document.querySelectorAll('.btn, .filter-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                btn.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            // Для отладки
+            console.log('Функция register доступна?', typeof window.register);
+            console.log('Функция login доступна?', typeof window.login);
+            console.log('Функция switchTab доступна?', typeof window.switchTab);
+        });
+    </script>
+    
+    <style>
+        /* Стили для кнопок действий с товарами */
+        .product-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .btn-delete, .btn-edit {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: #d32f2f;
+            transform: translateY(-2px);
+        }
+        
+        .btn-edit {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+        
+        /* Стили для уведомлений */
+        .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        
+        .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0;
+            margin-left: 10px;
+            opacity: 0.8;
+            transition: opacity 0.3s;
+        }
+        
+        .notification-close:hover {
+            opacity: 1;
+        }
+        
+        /* Анимация появления уведомления */
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        /* Адаптивность для мобильных устройств */
+        @media (max-width: 768px) {
+            .product-actions {
+                flex-direction: column;
+            }
+            
+            .btn-delete, .btn-edit {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</body>
+</html>
